@@ -1,3 +1,3 @@
 ### DP-NCB Experimments
 
-Still in progress
+Simple Python Implementation 

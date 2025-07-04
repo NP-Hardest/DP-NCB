@@ -73,7 +73,7 @@ def DP_NCB_single(means, c, epsilon, alpha, W, T, test_type):
     t = 0
 
     # --- Phase I: uniform exploration up to window W or until signal is strong ---
-    thresh = 1 * (c**2 * logW + (logT**2) / epsilon)
+    thresh = 1600 * (c**2 * logW + (logW**2) / epsilon)
     while t < T and t < W and np.max(N1 * mu0) <= thresh:
         a = np.random.randint(k)
         # draw reward
@@ -160,7 +160,7 @@ def simulate_DP_NCB(means, T_max, epsilon, alpha, num_trials, c, test_type):
     expected_means = np.sum(total_rewards, axis = 0)/num_trials
 
     # delta= 1e-100
-    cumsum_log = np.cumsum(np.log(expected_means))   # shape (T_max,)
+    cumsum_log = np.cumsum(np.log(np.maximum(expected_means, 1e-300)))   # shape (T_max,)
     inv_t = 1.0 / np.arange(1, T_max+1)
     geom_mean = np.exp(cumsum_log * inv_t)           # shape (T_max,)
     avg_regret = mu_star - geom_mean                  # shape (T_max,)

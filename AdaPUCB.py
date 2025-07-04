@@ -144,7 +144,7 @@ def simulate_adap_ucb(means, epsilon, T_max, num_trials, alpha, test_type):
     total_rewards = np.array(total_rewards)
     expected_means = np.sum(total_rewards, axis = 0)/num_trials
     with np.errstate(divide='ignore'):
-        cumsum_log = np.cumsum(np.log(expected_means))
+        cumsum_log = np.cumsum(np.log(np.maximum(expected_means, 1e-300)))
     inv_t = 1.0 / np.arange(1, T_max+1)
     geom_mean = np.exp(cumsum_log * inv_t)           # shape (T_max,)
     avg_regret = mu_star - geom_mean                  # shape (T_max,)

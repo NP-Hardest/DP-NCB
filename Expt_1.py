@@ -284,26 +284,34 @@ epsilon = 2
 
 
 def run_expt_1(num_trials, c, alpha, test_type, epsilon):
-    regrets = []
-    reg2 = []
-    for T in tqdm(t_values, desc="Simulating Experiment 1"):
-        exponent = -T
-        base = 2 * mp.e
-        result = mp.power(base, exponent)
-        # print(result)
-        means = [float(result), 1]
-        # print(means)
-        avg_regret_adap = simulate_adap_ucb_expt1(means, epsilon, T, num_trials, alpha, test_type)
-        avg_regret_dpncb = simulate_DP_NCB_expt1(means, (T), epsilon, alpha, num_trials, c, test_type)
+    reg1 = np.zeros(len(t_values))
+    reg2 = np.zeros(len(t_values))
+    for _ in range(10):
+        print(_)
+        regrets = []
+        regrets2 = []
+        for T in tqdm(t_values, desc=f"Simulating Experiment 1 {_}th time"):
+            exponent = -T
+            base = 2 * mp.e
+            result = mp.power(base, exponent)
+            # print(result)
+            means = [float(result), 1]
+            # print(means)
+            avg_regret_adap = simulate_adap_ucb_expt1(means, epsilon, T, num_trials, alpha, test_type)
+            avg_regret_dpncb = simulate_DP_NCB_expt1(means, (T), epsilon, alpha, num_trials, c, test_type)
 
-        regrets.append(avg_regret_adap)
-        reg2.append(avg_regret_dpncb)
-
+            regrets.append(avg_regret_adap)
+            regrets2.append(avg_regret_dpncb)
+        reg1 += np.array(regrets)
+        reg2 += np.array(regrets2)
+    
+    reg1 /= 10
+    reg2 /= 10
 
 
     plt.figure(figsize=(8, 5))
     # plt.xscale('log')
-    plt.plot(t_values, regrets, label = "AdaP-UCB")
+    plt.plot(t_values, reg1, label = "AdaP-UCB")
     plt.plot(t_values, reg2, label = "DP-NCB")
     plt.xlabel('T (log scale)' if plt.gca().get_xscale() == 'log' else 'T')
     plt.ylabel("Nash Regret")

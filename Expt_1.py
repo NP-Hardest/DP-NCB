@@ -312,7 +312,7 @@ def run_expt_1(num_trials, c, alpha, test_type, epsilon):
     plt.figure(figsize=(8, 5))
     # plt.xscale('log')
     plt.plot(t_values, reg1, label = "AdaP-UCB")
-    plt.plot(t_values, reg2, label = "DP-NCB")
+    plt.plot(t_values, reg2, label = "GDP-NCB")
     plt.xlabel('T (log scale)' if plt.gca().get_xscale() == 'log' else 'T')
     plt.ylabel("Nash Regret")
     plt.legend()

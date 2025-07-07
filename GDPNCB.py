@@ -47,7 +47,7 @@ def sample_reward(mean, test_type):
             return 1.0 if u < mean else 0.0
     
 @njit
-def DP_NCB_single(means, c, epsilon, alpha, W, T, test_type):
+def GDP_NCB_single(means, c, epsilon, alpha, W, T, test_type):
     """
     Modified NCB with a private, adaptive Phase II.
     
@@ -141,7 +141,7 @@ def DP_NCB_single(means, c, epsilon, alpha, W, T, test_type):
 
 
 
-def simulate_DP_NCB(means, T_max, epsilon, alpha, num_trials, c, test_type):
+def simulate_GDP_NCB(means, T_max, epsilon, alpha, num_trials, c, test_type):
     """
     Returns an array of length T_max where entry t-1 is the average Nash regret at time t,
     averaged over num_trials independent runs.
@@ -150,8 +150,8 @@ def simulate_DP_NCB(means, T_max, epsilon, alpha, num_trials, c, test_type):
     mu_star = np.max(means)
     total_rewards = []
 
-    for _ in tqdm(range(num_trials), desc=f"DP-NCB Trials"):
-        arms = DP_NCB_single(means, c, epsilon, alpha, W, T_max, test_type)
+    for _ in tqdm(range(num_trials), desc=f"GDP-NCB Trials"):
+        arms = GDP_NCB_single(means, c, epsilon, alpha, W, T_max, test_type)
         rewards = np.array(means)[arms]                # length T_max
         rewards.reshape(1, T_max)
         total_rewards.append(rewards)

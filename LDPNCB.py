@@ -45,7 +45,24 @@ def sample_reward(mean, test_type):
         else:
             # fallback to Bernoulli
             return 1.0 if u < mean else 0.0
-    
+
+@njit
+def arm_thresholds(mu, n, epsilon, alpha, logT, c):
+    # compute the denom: (μ - (1/ε)*sqrt(8α logT / n))^2 ε^2
+    # note: only for n>0 and μ large enough; else set threshold=∞ so we stop immediately
+    sqrt_term = np.zeros_like(mu)
+    safe_n = np.maximum(n, 1)
+    sqrt_term[n>0] = (1/epsilon)*np.sqrt((8*alpha*logT)/safe_n[n>0])
+    diff = mu - sqrt_term
+    # if diff<=0, we force a tiny positive number so denom->∞ and paper‐term->∞
+    diff = np.maximum(diff, 1e-20)
+    denom = (diff) * (epsilon**2)
+
+    paper_term = (logT**2) / denom
+    return 1600 * (c**2 * logT + paper_term) \
+            + np.sqrt(8 * n * alpha * logT) / epsilon    
+
+
 @njit
 def LDP_NCB_single(means, c, T, W, epsilon, alpha, test_type):
     """Run NCB for T steps, return chosen arms[0..T-1]."""
@@ -60,15 +77,11 @@ def LDP_NCB_single(means, c, T, W, epsilon, alpha, test_type):
     t = 0
 
     # Phase 1: uniform exploration
-    def arm_thresholds(mu):
-        # avoid division-by-zero if mu[i] is zero
-        mu_safe = np.maximum(mu, 1e-20)
-        return 1600 * (c**2 * logT + (logT**2) / (128 * epsilon**2 * mu_safe))
 
     # --- Phase I: uniform exploration until ANY arm breaks the condition ---
     while t <= W:
         lhs = n * mu
-        rhs = arm_thresholds(mu)
+        rhs = arm_thresholds(mu, n, epsilon, alpha, logT, c)
         if not np.all(lhs <= rhs):
             break
 

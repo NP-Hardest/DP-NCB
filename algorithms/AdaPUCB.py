@@ -124,7 +124,7 @@ def adap_ucb_single(means, epsilon, T, alpha, test_type):
 
     return arms
 
-def simulate_adap_ucb(means, epsilon, T_max, num_trials, alpha, test_type):
+def simulate_adap_ucb(means, epsilon, T_max, num_trials, alpha, test_type, regret_type):
     """
     Returns an array where entry t-1 is the average Nash regret at time t,
     averaged over num_trials runs.
@@ -143,13 +143,37 @@ def simulate_adap_ucb(means, epsilon, T_max, num_trials, alpha, test_type):
 
     total_rewards = np.array(total_rewards)
     expected_means = np.sum(total_rewards, axis = 0)/num_trials
-    with np.errstate(divide='ignore'):
-        cumsum_log = np.cumsum(np.log(np.maximum(expected_means, 1e-300)))
-    inv_t = 1.0 / np.arange(1, T_max+1)
-    geom_mean = np.exp(cumsum_log * inv_t)           # shape (T_max,)
-    avg_regret = mu_star - geom_mean                  # shape (T_max,)
 
-    return avg_regret
+    if regret_type == "Nash":
+
+        with np.errstate(divide='ignore'):
+            cumsum_log = np.cumsum(np.log(np.maximum(expected_means, 1e-300)))
+        inv_t = 1.0 / np.arange(1, T_max+1)
+        geom_mean = np.exp(cumsum_log * inv_t)           # shape (T_max,)
+        avg_regret = mu_star - geom_mean                  # shape (T_max,)
+        return avg_regret
+    else:
+        cum_rewards = np.cumsum(expected_means)         # shape (T_max,)
+        inv_t     = 1.0 / np.arange(1, T_max+1)         # 1/t for t=1..T_max
+
+        arith_mean = cum_rewards * inv_t                # shape (T_max,)
+
+        avg_regret = mu_star - arith_mean               # shape (T_max,)
+
+        # total_rewards = np.array(total_rewards)
+
+        # # 1) Compute per‐trial cumulative sums:
+        # cum_rewards_per_trial = np.cumsum(total_rewards, axis=1)    # shape (num_trials, T_max)
+
+        # # 2) Average across trials to get the average cumulative reward at each t:
+        # avg_cum_rewards = np.mean(cum_rewards_per_trial, axis=0)    # shape (T_max,)
+
+        # # (optional) if you want the per‐round average reward instead:
+        # # expected_means = np.mean(total_rewards, axis=0)
+
+        # # 3) Return or plot avg_cum_rewards instead of avg_regret
+        # return avg_cum_rewards
+        return avg_regret
 
     # return avg_regret[len(avg_regret)-1]
 

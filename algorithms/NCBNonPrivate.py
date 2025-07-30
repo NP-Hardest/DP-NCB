@@ -94,7 +94,7 @@ def NCB_single(means, c, T, test_type):
 
     return arms
 
-def simulate_ncb(means, T_max, num_trials, c, test_type):
+def simulate_ncb(means, T_max, num_trials, c, test_type, regret_type):
     """
     Returns an array of length T_max where entry t-1 is the average Nash regret at time t,
     averaged over num_trials independent runs.
@@ -110,9 +110,19 @@ def simulate_ncb(means, T_max, num_trials, c, test_type):
 
     total_rewards = np.array(total_rewards)
     expected_means = np.sum(total_rewards, axis = 0)/num_trials
+    if regret_type == "Nash":
 
-    cumsum_log = np.cumsum(np.log(np.maximum(expected_means, 1e-300)))   # shape (T_max,)
-    inv_t = 1.0 / np.arange(1, T_max+1)
-    geom_mean = np.exp(cumsum_log * inv_t)           # shape (T_max,)
-    avg_regret = mu_star - geom_mean                  # shape (T_max,)
-    return avg_regret
+        cumsum_log = np.cumsum(np.log(np.maximum(expected_means, 1e-300)))   # shape (T_max,)
+        inv_t = 1.0 / np.arange(1, T_max+1)
+        geom_mean = np.exp(cumsum_log * inv_t)           # shape (T_max,)
+        avg_regret = mu_star - geom_mean                  # shape (T_max,)
+        return avg_regret
+    else:
+        cum_rewards = np.cumsum(expected_means)         # shape (T_max,)
+        inv_t     = 1.0 / np.arange(1, T_max+1)         # 1/t for t=1..T_max
+
+        arith_mean = cum_rewards * inv_t                # shape (T_max,)
+
+        avg_regret = mu_star - arith_mean               # shape (T_max,)
+
+        return avg_regret

@@ -287,10 +287,10 @@ def run_expt_1(num_trials, c, alpha, test_type, epsilon):
     reg1 = np.zeros(len(t_values))
     reg2 = np.zeros(len(t_values))
     for _ in range(10):
-        print(_)
+        # print(_)
         regrets = []
         regrets2 = []
-        for T in tqdm(t_values, desc=f"Simulating Experiment 1 {_}th time"):
+        for T in tqdm(t_values, desc=f"Simulating Experiment 1 {_+1}th time"):
             exponent = -T
             base = 2 * mp.e
             result = mp.power(base, exponent)
@@ -308,15 +308,6 @@ def run_expt_1(num_trials, c, alpha, test_type, epsilon):
     reg1 /= 10
     reg2 /= 10
 
+    return (reg1, reg2)
 
-    plt.figure(figsize=(8, 5))
-    # plt.xscale('log')
-    plt.plot(t_values, reg1, label = "AdaP-UCB")
-    plt.plot(t_values, reg2, label = "GDP-NCB")
-    plt.xlabel('T (log scale)' if plt.gca().get_xscale() == 'log' else 'T')
-    plt.ylabel("Nash Regret")
-    plt.legend()
-    plt.grid(alpha=0.3)
-    plt.tight_layout()
-    plt.savefig(f"Results/expt_1.png")
-    plt.show()
+

@@ -1,5 +1,5 @@
 
-# **DP-NCB:Privacy Preserving Fair Bandits**
+# **DP-NCB: Privacy Preserving Fair Bandits**
 
 ### Overview
 

@@ -3,7 +3,7 @@
 
 ### Overview
 
-Official Python implementation for the work by Sarkar et al. on Differentially Private Fair Bandits, submitted to AAAI 2026. [arXiv]
+Official Python implementation for the work by Sarkar et al. on Differentially Private Fair Bandits. [arXiv]
     
 
 ### Repository Structure
